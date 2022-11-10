@@ -22,6 +22,10 @@ class ViewController: UIViewController {
         coinManager.delegate = self
         currencyPicker.dataSource = self
         currencyPicker.delegate = self
+        //при загрузке приложения сразу показывает данные первого элемента
+        let selectedCurrency = coinManager.currencyArray[0]
+        coinManager.getCoinPrice(for: selectedCurrency)
+        currencyPicker.selectRow(0, inComponent: 0, animated: true)
     }
     
 }
