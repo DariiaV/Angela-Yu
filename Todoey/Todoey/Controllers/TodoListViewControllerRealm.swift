@@ -1,37 +1,36 @@
 //
-//  TodoListViewController.swift
+//  TodoListViewControllerRealm.swift
 //  Todoey
 //
-//  Created by Дария Григорьева on 01.12.2022.
+//  Created by Дария Григорьева on 05.12.2022.
 //
 
 import UIKit
 
-class TodoListViewController: UIViewController {
+// Realm
+class TodoListViewControllerRealm: UIViewController {
     
     private let tableView = UITableView()
     private let cellReuseIdentifier = "cell"
-    private var itemArray = [
-        "Купить хлопья",
-        "Купить гречу",
-        "Купить рис",
-        "Купить молоко",
-        "Купить мандарины"
-    ]
-
+    private var itemArray = [Item]()
+    
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-       
+        
+        
         setupTableView()
         setupNavigationView()
         
     }
+    
     private func setupNavigationView() {
         title = "Todo List"
+        
         let rightItem = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(rightButtonItemTapped))
-        rightItem.tintColor = .black
+        rightItem.tintColor = .white
         navigationItem.rightBarButtonItem = rightItem
-
     }
     
     private func setupTableView() {
@@ -49,7 +48,9 @@ class TodoListViewController: UIViewController {
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
-
+    
+    // MARK: - Add New Items
+    
     @objc private func rightButtonItemTapped() {
         let alertVC = UIAlertController(title: "Add New Todo List Item", message: nil, preferredStyle: .alert)
         alertVC.addTextField { textField in
@@ -57,7 +58,10 @@ class TodoListViewController: UIViewController {
         }
         let action = UIAlertAction(title: "Add Item", style: .default) { _ in
             if let text = alertVC.textFields?.first?.text {
-                self.itemArray.append(text)
+                let newItem = Item(title: text)
+                self.itemArray.append(newItem)
+                
+               // self.storageManager.save(item: newItem)
                 self.tableView.insertRows(at: [IndexPath(row: self.itemArray.count - 1, section: 0)], with: .automatic)
             }
         }
@@ -66,30 +70,51 @@ class TodoListViewController: UIViewController {
     }
 }
 
-extension TodoListViewController: UITableViewDataSource {
+// MARK: - TableView Data Source Methods
+
+extension TodoListViewControllerRealm: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         itemArray.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellReuseIdentifier, for: indexPath)
-        cell.textLabel?.text = itemArray[indexPath.row]
+        
+        cell.textLabel?.text = itemArray[indexPath.row].title
+        if itemArray[indexPath.row].done {
+            cell.accessoryType = .checkmark
+        } else {
+            cell.accessoryType = .none
+        }
         return cell
     }
     
     
 }
 
-extension TodoListViewController: UITableViewDelegate {
+// MARK: - TableView Delegate Methods
+
+extension TodoListViewControllerRealm: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
+        itemArray[indexPath.row].done.toggle()
+        //storageManager.setNewItems(items: itemArray)
         let cell = tableView.cellForRow(at: indexPath)
+        
         if cell?.accessoryType == .checkmark {
             cell?.accessoryType = .none
         } else {
             cell?.accessoryType = .checkmark
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            itemArray.remove(at: indexPath.row)
+          //  storageManager.deleteItem(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .automatic)
         }
     }
 }

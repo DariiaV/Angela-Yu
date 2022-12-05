@@ -15,10 +15,21 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let scene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: scene)
-        let navVC = UINavigationController(rootViewController: TodoListViewController())
-        navVC.navigationBar.backgroundColor = .cyan
-        window?.rootViewController = navVC
+        window?.rootViewController = getNavigationController()
         window?.makeKeyAndVisible()
+    }
+    
+    private func getNavigationController() -> UIViewController {
+        let navVC = UINavigationController(rootViewController: TodoListViewControllerCoreData())
+
+        let appearance = UINavigationBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = .systemBlue
+        appearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+        
+        navVC.navigationBar.standardAppearance = appearance
+        navVC.navigationBar.scrollEdgeAppearance = appearance
+        return navVC
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
