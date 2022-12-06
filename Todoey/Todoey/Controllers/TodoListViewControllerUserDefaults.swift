@@ -13,7 +13,7 @@ class TodoListViewControllerUserDefaults: UIViewController {
     private let cellReuseIdentifier = "cell"
     private var itemArray = [Item]()
     
-    private let storageManager = StorageManager.shared
+    private let storageManager = StorageManagerUserDefaults.shared
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -55,7 +55,7 @@ class TodoListViewControllerUserDefaults: UIViewController {
             textField.placeholder = "Create new item"
         }
         let action = UIAlertAction(title: "Add Item", style: .default) { _ in
-            if let text = alertVC.textFields?.first?.text {
+            if let text = alertVC.textFields?.first?.text, !text.isEmpty {
                 let newItem = Item(title: text)
                 self.itemArray.append(newItem)
                 
@@ -63,7 +63,9 @@ class TodoListViewControllerUserDefaults: UIViewController {
                 self.tableView.insertRows(at: [IndexPath(row: self.itemArray.count - 1, section: 0)], with: .automatic)
             }
         }
+        let cancelAction = UIAlertAction(title: "Cancel", style: .destructive)
         alertVC.addAction(action)
+        alertVC.addAction(cancelAction)
         present(alertVC, animated: true)
     }
 }

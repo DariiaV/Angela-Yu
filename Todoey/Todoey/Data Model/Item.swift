@@ -7,12 +7,7 @@
 
 import UIKit
 
-class Item: Codable {
+struct Item: Codable {
     let title: String
-    var done: Bool
-    
-    init(title: String, done: Bool = false) {
-        self.title = title
-        self.done = done
-    }
+    var done: Bool = false
 }

@@ -12,9 +12,9 @@ class TodoListViewControllerCoreData: UIViewController {
     
     private let tableView = UITableView()
     private let cellReuseIdentifier = "cell"
-    private var itemArray = [Item]()
+    private var itemArray = [ItemCoreData]()
     
-    
+    private let storageManager = StorageManagerCoreData.shared
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -23,6 +23,7 @@ class TodoListViewControllerCoreData: UIViewController {
         setupTableView()
         setupNavigationView()
         
+        itemArray = storageManager.fetchItems()
     }
     
     private func setupNavigationView() {
@@ -57,22 +58,25 @@ class TodoListViewControllerCoreData: UIViewController {
             textField.placeholder = "Create new item"
         }
         let action = UIAlertAction(title: "Add Item", style: .default) { _ in
-            if let text = alertVC.textFields?.first?.text {
-                let newItem = Item(title: text)
-                self.itemArray.append(newItem)
+            if let text = alertVC.textFields?.first?.text,
+               !text.isEmpty {
+                let item = self.storageManager.createItem(text)
+                self.itemArray.append(item)
                 
-               // self.storageManager.save(item: newItem)
                 self.tableView.insertRows(at: [IndexPath(row: self.itemArray.count - 1, section: 0)], with: .automatic)
             }
         }
+        let cancelAction = UIAlertAction(title: "Cancel", style: .destructive)
         alertVC.addAction(action)
+        alertVC.addAction(cancelAction)
         present(alertVC, animated: true)
     }
 }
 
-// MARK: - TableView Data Source Methods
-
 extension TodoListViewControllerCoreData: UITableViewDataSource {
+    
+    // MARK: - TableView Data Source Methods
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         itemArray.count
     }
@@ -92,15 +96,16 @@ extension TodoListViewControllerCoreData: UITableViewDataSource {
     
 }
 
-// MARK: - TableView Delegate Methods
-
 extension TodoListViewControllerCoreData: UITableViewDelegate {
+    
+    // MARK: - TableView Delegate Methods
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
         itemArray[indexPath.row].done.toggle()
-        //storageManager.setNewItems(items: itemArray)
+        storageManager.update()
+        
         let cell = tableView.cellForRow(at: indexPath)
         
         if cell?.accessoryType == .checkmark {
@@ -112,8 +117,8 @@ extension TodoListViewControllerCoreData: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
+            storageManager.delete(itemArray[indexPath.row])
             itemArray.remove(at: indexPath.row)
-          //  storageManager.deleteItem(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .automatic)
         }
     }

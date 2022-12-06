@@ -1,5 +1,5 @@
 //
-//  StorageManager.swift
+//  StorageManagerUserDefaults.swift
 //  Todoey
 //
 //  Created by Дария Григорьева on 05.12.2022.
@@ -8,8 +8,8 @@
 import Foundation
 
 // MARK: - Manager UserDefaults
-class StorageManager {
-    static let shared = StorageManager()
+class StorageManagerUserDefaults {
+    static let shared = StorageManagerUserDefaults()
     private let userDefaults = UserDefaults.standard
     private let key = "items"
     
