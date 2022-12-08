@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		8F68789327F64758E2191CCC /* Pods_ToDoListRealmApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFFFB279BAFDC19A985AC00A /* Pods_ToDoListRealmApp.framework */; };
+		D83A3D26294227EB00AAE6D1 /* UITableViewCell+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = D83A3D25294227EB00AAE6D1 /* UITableViewCell+Ext.swift */; };
 		D8E6BC3D2940789E00C5DF18 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E6BC3C2940789E00C5DF18 /* AppDelegate.swift */; };
 		D8E6BC3F2940789E00C5DF18 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E6BC3E2940789E00C5DF18 /* SceneDelegate.swift */; };
 		D8E6BC412940789E00C5DF18 /* TaskListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E6BC402940789E00C5DF18 /* TaskListViewController.swift */; };
@@ -24,6 +25,7 @@
 /* Begin PBXFileReference section */
 		8171E9BD50A55699E483EDFF /* Pods-ToDoListRealmApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ToDoListRealmApp.debug.xcconfig"; path = "Target Support Files/Pods-ToDoListRealmApp/Pods-ToDoListRealmApp.debug.xcconfig"; sourceTree = "<group>"; };
 		A32997FAEEBA2CAD05951E61 /* Pods-ToDoListRealmApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ToDoListRealmApp.release.xcconfig"; path = "Target Support Files/Pods-ToDoListRealmApp/Pods-ToDoListRealmApp.release.xcconfig"; sourceTree = "<group>"; };
+		D83A3D25294227EB00AAE6D1 /* UITableViewCell+Ext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITableViewCell+Ext.swift"; sourceTree = "<group>"; };
 		D8E6BC392940789E00C5DF18 /* ToDoListRealmApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ToDoListRealmApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8E6BC3C2940789E00C5DF18 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D8E6BC3E2940789E00C5DF18 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -69,6 +71,14 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
+		D83A3D27294227F400AAE6D1 /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				D83A3D25294227EB00AAE6D1 /* UITableViewCell+Ext.swift */,
+			);
+			path = Extension;
+			sourceTree = "<group>";
+		};
 		D8E6BC302940789E00C5DF18 = {
 			isa = PBXGroup;
 			children = (
@@ -99,6 +109,7 @@
 				D8E6BC452940789E00C5DF18 /* Assets.xcassets */,
 				D8E6BC472940789E00C5DF18 /* LaunchScreen.storyboard */,
 				D8E6BC4A2940789E00C5DF18 /* Info.plist */,
+				D83A3D27294227F400AAE6D1 /* Extension */,
 			);
 			path = ToDoListRealmApp;
 			sourceTree = "<group>";
@@ -246,6 +257,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D8E6BC782940B74200C5DF18 /* TaskList.swift in Sources */,
+				D83A3D26294227EB00AAE6D1 /* UITableViewCell+Ext.swift in Sources */,
 				D8E6BC7C2941091800C5DF18 /* DataManager.swift in Sources */,
 				D8E6BC412940789E00C5DF18 /* TaskListViewController.swift in Sources */,
 				D8E6BC5329407F3700C5DF18 /* AlertController.swift in Sources */,
@@ -400,13 +412,14 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = KZR7R52B76;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ToDoListRealmApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -429,13 +442,14 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = KZR7R52B76;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ToDoListRealmApp/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

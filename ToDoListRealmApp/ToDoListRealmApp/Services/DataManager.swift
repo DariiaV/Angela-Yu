@@ -39,7 +39,7 @@ class DataManager {
             shoppingList.tasks.append(milk)
             shoppingList.tasks.insert(contentsOf: [bread, apples], at: 1)
             
-            StorageManager.shared.save(taskLists: [shoppingList, moviesList])
+            StorageManager.shared.save([shoppingList, moviesList])
             UserDefaults.standard.set(true, forKey: "done")
             
             completion()

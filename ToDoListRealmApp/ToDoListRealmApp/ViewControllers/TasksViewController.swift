@@ -37,6 +37,12 @@ class TasksViewController: UIViewController {
         
     }
     
+    override func setEditing(_ editing: Bool, animated: Bool) {
+        super.setEditing(editing, animated: animated)
+        
+        tableView.setEditing(editing, animated: true)
+    }
+    
     private func setupNavigation() {
         self.navigationItem.largeTitleDisplayMode = .never
         
@@ -57,6 +63,7 @@ class TasksViewController: UIViewController {
     private func setupTableView() {
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: cellReuseIdentifier)
         tableView.dataSource = self
+        tableView.delegate = self
         
         view.addSubview(tableView)
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -67,13 +74,20 @@ class TasksViewController: UIViewController {
             tableView.topAnchor.constraint(equalTo: view.topAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+        
     }
     
-    private func showAlert() {
-        let alert = UIAlertController.createAlert(withTitle: "New Task", andMessage: "What do you want to do?")
+    private func showAlert(with task: Task? = nil, completion: (() -> Void)? = nil) {
+        let title = task != nil ? "Edit Task" : "New Task"
+        let alert = UIAlertController.createAlert(withTitle: title, andMessage: "What do you want to do?")
         
-        alert.action(with: nil) { newValue, note in
-            self.saveTask(withName: newValue, andNote: note)
+        alert.action(with: task) { newValue, note in
+            if let task = task, let completion = completion {
+                StorageManager.shared.edit(task, newValue: newValue, newNote: note)
+                completion()
+            } else {
+                self.saveTask(withName: newValue, andNote: note)
+            }
         }
         
         present(alert, animated: true)
@@ -81,7 +95,7 @@ class TasksViewController: UIViewController {
     
     private func saveTask(withName name: String, andNote note: String) {
         let task = Task(value: [name, note])
-        StorageManager.shared.save(task: task, in: taskList)
+        StorageManager.shared.save(task, to: taskList)
         let rowIndex = IndexPath(row: currentTasks.count - 1, section: 0)
         tableView.insertRows(at: [rowIndex], with: .automatic)
     }
@@ -113,4 +127,40 @@ extension TasksViewController: UITableViewDataSource {
         return cell
     }
     
+}
+
+extension TasksViewController: UITableViewDelegate {
+    
+    // MARK: - UITableViewDelegate
+    
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let task = indexPath.section == 0 ? currentTasks[indexPath.row] : completedTasks[indexPath.row]
+        let title = indexPath.section == 0 ? "Done": "Undone"
+        
+        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { _, _, _ in
+            StorageManager.shared.delete(task)
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+        }
+        
+        let editAction = UIContextualAction(style: .normal, title: "Edit") { _, _, isDone in
+            self.showAlert(with: task) {
+                self.tableView.reloadRows(at: [indexPath], with: .automatic)
+            }
+            isDone(true)
+        }
+        
+        let doneAction = UIContextualAction(style: .normal, title: title) { _, _, isDone in
+            StorageManager.shared.done(task)
+            let indexPathForCurrentTask = IndexPath(row: self.currentTasks.count - 1, section: 0)
+            let indexPathForCompletedTask = IndexPath(row: self.completedTasks.count - 1, section: 1)
+            let destinationIndexRow = indexPath.section == 0 ? indexPathForCompletedTask : indexPathForCurrentTask
+            tableView.moveRow(at: indexPath, to: destinationIndexRow )
+            isDone(true)
+        }
+        
+        editAction.backgroundColor = .orange
+        doneAction.backgroundColor = .systemGreen
+        
+        return UISwipeActionsConfiguration(actions: [doneAction, editAction, deleteAction])
+    }
 }

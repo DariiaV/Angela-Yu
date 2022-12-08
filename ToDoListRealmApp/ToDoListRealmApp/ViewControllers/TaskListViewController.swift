@@ -13,7 +13,7 @@ class TaskListViewController: UIViewController {
     // MARK: - Properties
     private let cellReuseIdentifier = "cell"
     private var taskLists = StorageManager.shared.realm.objects(TaskList.self)
-   
+    
     
     // MARK: - View
     private lazy var tableView = UITableView()
@@ -29,7 +29,18 @@ class TaskListViewController: UIViewController {
         
         setupTableView()
         setupNavigationView()
+        createTempData()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        tableView.reloadData()
+    }
+    
+    override func setEditing(_ editing: Bool, animated: Bool) {
+        super.setEditing(editing, animated: animated)
         
+        tableView.setEditing(editing, animated: true)
     }
     
     private func setupNavigationView() {
@@ -42,6 +53,7 @@ class TaskListViewController: UIViewController {
         
         navigationItem.rightBarButtonItem = addButton
         navigationItem.leftBarButtonItem = editButtonItem
+       
     }
     
     @objc private func addButtonPressed() {
@@ -67,32 +79,43 @@ class TaskListViewController: UIViewController {
     }
     
     @objc private func sortingList(_ sender: UISegmentedControl) {
-        if sender.selectedSegmentIndex == 0 {
-            print("fisrt")
-            //            taskLists = self.taskLists.sorted(byKeyPath: "name")
+        if sender.selectedSegmentIndex == 1 {
+            taskLists = taskLists.sorted(byKeyPath: "name")
         } else {
-            print("second")
-            //            taskLists = self.taskLists.sorted(byKeyPath: "date")
+            taskLists = taskLists.sorted(byKeyPath: "date")
         }
-        tableView.reloadData()
+        
+        self.tableView.reloadData()
+        
+        
     }
     
-    private func showAlert() {
-        let alert = UIAlertController.createAlert(withTitle: "New Task", andMessage: "What do you want to do?")
+    private func showAlert(with taskList: TaskList? = nil, completion: (() -> Void)? = nil) {
+        let title = taskList != nil ? "Edit List" : "New List"
         
-        alert.action(with: nil) { newValue in
-            self.save(taskList: newValue)
+        let alert = UIAlertController.createAlert(withTitle: title,
+                                                  andMessage: "Please set title for new task list?")
+        
+        alert.action(with: taskList) { newValue in
+            if let taskList = taskList, let completion = completion{
+                StorageManager.shared.edit(taskList, newValue: newValue)
+                completion()
+            } else {
+                self.save(taskList: newValue)
+            }
         }
         
         present(alert, animated: true)
     }
-   
+    
     
     private func save(taskList: String) {
-        let taskList = TaskList(value: [taskList])
-        StorageManager.shared.save(taskList: taskList)
-        let rowIndex = IndexPath(row: taskLists.count - 1, section: 0)
-        tableView.insertRows(at: [rowIndex], with: .automatic)
+        let task = TaskList(value: [taskList])
+        StorageManager.shared.save(task)
+        if let index = taskLists.firstIndex(where: {$0.name == taskList}) {
+            let rowIndex = IndexPath(row: index, section: 0)
+            tableView.insertRows(at: [rowIndex], with: .automatic)
+        }
     }
     
     private func createTempData() {
@@ -107,24 +130,15 @@ extension TaskListViewController: UITableViewDataSource {
     // MARK: - UITableViewDataSource
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        taskLists.count
+        return taskLists.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: cellReuseIdentifier, for: indexPath)
-        let taskList = taskLists[indexPath.row]
-        cell.textLabel?.text = taskList.name
         
-        cell.accessoryView = createLabelForCell(text: "\(taskList.tasks.count)")
+        let taskList = taskLists[indexPath.row]
+        cell.configure(with: taskList)
         return cell
-    }
-    
-    private func createLabelForCell(text: String) -> UILabel {
-        let label = UILabel.init(frame: CGRect(x:0, y:0, width:100, height:20))
-        label.text = text
-        label.textAlignment = .right
-        label.textColor = .gray
-        return label
     }
     
 }
@@ -141,5 +155,29 @@ extension TaskListViewController: UITableViewDelegate {
         
         navigationController?.pushViewController(tasksVC, animated: true)
         
+    }
+    
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let taskList = taskLists[indexPath.row]
+        
+        let deleteAction = UIContextualAction(style: .destructive, title: "Delete") { _, _, _ in
+            StorageManager.shared.delete(taskList)
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+        }
+        let editAction = UIContextualAction(style: .normal, title: "Edit") { _, _, isDone in
+            self.showAlert(with: taskList) {
+                self.tableView.reloadRows(at: [indexPath], with: .automatic)
+            }
+            isDone(true)
+        }
+        let doneAction = UIContextualAction(style: .normal, title: "Done") { _, _, isDone in
+            StorageManager.shared.done(taskList)
+            tableView.reloadRows(at: [indexPath], with: .automatic)
+            isDone(true)
+        }
+        editAction.backgroundColor = .orange
+        doneAction.backgroundColor = .systemGreen
+        
+        return UISwipeActionsConfiguration(actions: [doneAction, editAction, deleteAction])
     }
 }
