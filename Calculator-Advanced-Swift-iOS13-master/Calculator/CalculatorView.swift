@@ -12,11 +12,11 @@ protocol CalculatorViewDelegate: AnyObject {
     func calcButtonPressed(_ name: String?)
     func numButtonPressed(_ name: String?)
 }
- 
+
 final class CalculatorView: UIView {
     
     weak var delegate: CalculatorViewDelegate?
-    private var isFinishedTypingNumber = false
+    private var isFinishedTypingNumber = true
     private var text = ""
     private var result: Double = 0
     
@@ -95,7 +95,7 @@ extension CalculatorView {
             mainStackView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
             mainStackView.topAnchor.constraint(equalTo: self.topAnchor),
             mainStackView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
-        
+            
         ])
         mainStackView.addArrangedSubview(resultView)
         mainStackView.addArrangedSubview(firstBlockStackView)
@@ -192,13 +192,40 @@ extension CalculatorView {
     @objc private func didTapCalcButton(_ sender: UIButton) {
         isFinishedTypingNumber = true
         text = ""
+        guard let number = Double(resultLabel.text!) else {
+            fatalError("Cannot convert display label text to a Double.")
+        }
+        
+        if let calcMethod = sender.currentTitle {
+            if calcMethod == "+/-" {
+                resultLabel.text = String(number * -1)
+            } else if calcMethod == "AC" {
+                resultLabel.text = "0"
+            } else if calcMethod == "%" {
+                resultLabel.text = String(number * 0.01)
+            }
+            
+        }
     }
     
     @objc private func didTapNumberButton(_ sender: UIButton) {
-        isFinishedTypingNumber = false
         if let numValue = sender.currentTitle {
-            text += numValue
-            resultLabel.text = text
+            if isFinishedTypingNumber {
+                resultLabel.text = numValue
+                isFinishedTypingNumber = false
+            } else {
+                if numValue == "." {
+                    guard let currentResultValue = Double(resultLabel.text!) else {
+                        fatalError("Cannot convert display label text to a Double.")
+                    }
+                    let isInt = floor(currentResultValue) == currentResultValue
+                    if !isInt {
+                        return
+                    }
+                }
+                
+                resultLabel.text = resultLabel.text! + numValue
+            }
         }
         
     }
@@ -216,5 +243,5 @@ extension UIColor {
     static var customDark: UIColor {
         return UIColor(red: 66/255, green: 66/255, blue: 66/255, alpha: 1)
     }
-
+    
 }
