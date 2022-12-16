@@ -22,7 +22,7 @@ final class CalculatorViewController: UIViewController {
         view.backgroundColor = .customDark
         view.addSubview(calculatorView)
         calculatorView.translatesAutoresizingMaskIntoConstraints = false
-        calculatorView.delegate = self
+        
         let margin = view.layoutMarginsGuide
         NSLayoutConstraint.activate([
             
@@ -32,27 +32,4 @@ final class CalculatorViewController: UIViewController {
             calculatorView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
     }
-}
-
-extension CalculatorViewController: CalculatorViewDelegate {
-    
-    // MARK: - CalculatorViewDelegate
-    
-    func calcButtonPressed(_ name: String?) {
-        guard let name else {
-            return
-        }
-        
-        print(name)
-    }
-    
-    func numButtonPressed(_ name: String?) {
-        guard let name else {
-            return
-        }
-        
-        print(name)
-    }
-    
-    
 }

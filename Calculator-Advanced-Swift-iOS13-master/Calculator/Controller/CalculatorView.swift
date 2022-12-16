@@ -8,17 +8,17 @@
 
 import UIKit
 
-protocol CalculatorViewDelegate: AnyObject {
-    func calcButtonPressed(_ name: String?)
-    func numButtonPressed(_ name: String?)
-}
-
 final class CalculatorView: UIView {
     
-    weak var delegate: CalculatorViewDelegate?
+    private enum ButtonType {
+        case numbers
+        case calculate
+        case topButtons
+    }
+    
     private var isFinishedTypingNumber = true
-    private var text = ""
-    private var result: Double = 0
+    private var manager = CalculatorLogic()
+    
     
     private lazy var mainStackView: UIStackView = {
         let stackView = UIStackView()
@@ -33,6 +33,8 @@ final class CalculatorView: UIView {
         let label = UILabel()
         label.text = "0"
         label.font = .systemFont(ofSize: 50, weight: .thin)
+        label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = 0.5
         label.textColor = .white
         label.textAlignment = .right
         return label
@@ -69,16 +71,21 @@ final class CalculatorView: UIView {
         return stackView
     }
     
-    private func createButton(color: UIColor = .customBlue, title: String, isNumberButton: Bool = true) -> UIButton {
+    private func createButton(color: UIColor = .customBlue,
+                              title: String,
+                              type: ButtonType = .numbers) -> UIButton {
         let button = UIButton()
         button.backgroundColor = color
         button.setTitle(title, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 30)
         
-        if isNumberButton {
+        switch type {
+        case .numbers:
             button.addTarget(self, action: #selector(didTapNumberButton(_:)), for: .touchUpInside)
-        } else {
+        case .calculate:
             button.addTarget(self, action: #selector(didTapCalcButton(_:)), for: .touchUpInside)
+        case .topButtons:
+            button.addTarget(self, action: #selector(didTapTopButton(_:)), for: .touchUpInside)
         }
         return button
     }
@@ -119,10 +126,10 @@ extension CalculatorView {
     
     private func setupFirstStackView() {
         
-        let buttonAC = createButton(color: .darkGray, title: "AC", isNumberButton: false)
-        let buttonPlusOrMinus = createButton(color: .darkGray, title: "+/-", isNumberButton: false)
-        let buttonPercentages = createButton(color: .darkGray, title: "%", isNumberButton: false)
-        let buttonDividing = createButton(color: .customOrange, title: "÷", isNumberButton: false)
+        let buttonAC = createButton(color: .darkGray, title: "AC", type: .topButtons)
+        let buttonPlusOrMinus = createButton(color: .darkGray, title: "+/-", type: .topButtons)
+        let buttonPercentages = createButton(color: .darkGray, title: "%", type: .topButtons)
+        let buttonDividing = createButton(color: .customOrange, title: "÷", type: .calculate)
         
         addArrangedSubviews(
             views: [buttonAC, buttonPlusOrMinus, buttonPercentages, buttonDividing],
@@ -135,7 +142,7 @@ extension CalculatorView {
         let buttonSeven = createButton(title: "7")
         let buttonEight = createButton(title: "8")
         let buttonNine = createButton(title: "9")
-        let buttonMultiply = createButton(color: .customOrange, title: "x", isNumberButton: false)
+        let buttonMultiply = createButton(color: .customOrange, title: "x", type: .calculate)
         
         addArrangedSubviews(
             views: [buttonSeven, buttonEight, buttonNine, buttonMultiply],
@@ -148,7 +155,7 @@ extension CalculatorView {
         let buttonFour = createButton(title: "4")
         let buttonFive = createButton(title: "5")
         let buttonSix = createButton(title: "6")
-        let buttonMinus = createButton(color: .customOrange, title: "-", isNumberButton: false)
+        let buttonMinus = createButton(color: .customOrange, title: "-", type: .calculate)
         
         addArrangedSubviews(
             views: [buttonFour, buttonFive, buttonSix, buttonMinus],
@@ -161,7 +168,7 @@ extension CalculatorView {
         let buttonOne = createButton(title: "1")
         let buttonTwo = createButton(title: "2")
         let buttonThree = createButton(title: "3")
-        let buttonPlus = createButton(color: .customOrange, title: "+", isNumberButton: false)
+        let buttonPlus = createButton(color: .customOrange, title: "+", type: .calculate)
         
         addArrangedSubviews(
             views: [buttonOne, buttonTwo, buttonThree, buttonPlus],
@@ -173,7 +180,7 @@ extension CalculatorView {
     private func setupFifthStackView() {
         let buttonZero = createButton(title: "0")
         let buttonDot = createButton(title: ".")
-        let buttonEqually = createButton(color: .customOrange, title: "=", isNumberButton: false)
+        let buttonEqually = createButton(color: .customOrange, title: "=", type: .calculate)
         
         let stackView = createStackView()
         stackView.addArrangedSubview(buttonDot)
@@ -190,58 +197,19 @@ extension CalculatorView {
     }
     
     @objc private func didTapCalcButton(_ sender: UIButton) {
-        isFinishedTypingNumber = true
-        text = ""
-        guard let number = Double(resultLabel.text!) else {
-            fatalError("Cannot convert display label text to a Double.")
-        }
-        
-        if let calcMethod = sender.currentTitle {
-            if calcMethod == "+/-" {
-                resultLabel.text = String(number * -1)
-            } else if calcMethod == "AC" {
-                resultLabel.text = "0"
-            } else if calcMethod == "%" {
-                resultLabel.text = String(number * 0.01)
-            }
-            
-        }
+        manager.didTapCalcButton(title: sender.currentTitle)
+        resultLabel.text = manager.getResultText()
     }
     
     @objc private func didTapNumberButton(_ sender: UIButton) {
-        if let numValue = sender.currentTitle {
-            if isFinishedTypingNumber {
-                resultLabel.text = numValue
-                isFinishedTypingNumber = false
-            } else {
-                if numValue == "." {
-                    guard let currentResultValue = Double(resultLabel.text!) else {
-                        fatalError("Cannot convert display label text to a Double.")
-                    }
-                    let isInt = floor(currentResultValue) == currentResultValue
-                    if !isInt {
-                        return
-                    }
-                }
-                
-                resultLabel.text = resultLabel.text! + numValue
-            }
-        }
-        
+        manager.didTapNumberButton(title: sender.currentTitle)
+        resultLabel.text = manager.getResultText()
+    }
+    
+    @objc private func didTapTopButton(_ sender: UIButton) {
+        manager.didTapTopButton(title: sender.currentTitle)
+        resultLabel.text = manager.getResultText()
     }
 }
 
-extension UIColor {
-    static var customOrange: UIColor {
-        return UIColor(red: 255/255, green: 147/255, blue: 0, alpha: 1)
-    }
-    
-    static var customBlue: UIColor {
-        return UIColor(red: 29/255, green: 155/255, blue: 246/255, alpha: 1)
-    }
-    
-    static var customDark: UIColor {
-        return UIColor(red: 66/255, green: 66/255, blue: 66/255, alpha: 1)
-    }
-    
-}
+
