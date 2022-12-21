@@ -37,3 +37,10 @@
 - JSON
 
 ![](ByteCoin-iOS13-master/ByteCoin.gif)
+
+## [Todoey](https://github.com/DariiaV/Angela-Yu/tree/main/Todoey)
+### What used:
+- UserDefaults
+- CoreData
+
+![](Todoey/Todoey.gif)
