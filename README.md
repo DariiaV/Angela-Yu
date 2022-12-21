@@ -21,3 +21,6 @@
 
 ## [BMI-Calculator](https://github.com/DariiaV/Angela-Yu/tree/main/BMI-Calculator-iOS13-master)
 ![](BMI-Calculator-iOS13-master/BMI Calculator.gif)
+
+## [Tipsy](https://github.com/DariiaV/Angela-Yu/tree/main/Tipsy-iOS13-master)
+![](Tipsy-iOS13-master/Tipsy.gif)
