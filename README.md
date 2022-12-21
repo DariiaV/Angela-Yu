@@ -24,3 +24,10 @@
 
 ## [Tipsy](https://github.com/DariiaV/Angela-Yu/tree/main/Tipsy-iOS13-master)
 ![](Tipsy-iOS13-master/Tipsy.gif)
+
+## [Clima](https://github.com/DariiaV/Angela-Yu/tree/main/Clima-iOS13-master)
+### What used:
+- JSON
+- CoreLocation
+
+![](Clima-iOS13-master/Clima.gif)
